@@ -6,7 +6,7 @@ ModbusRTUComm::ModbusRTUComm(Stream& serial, int8_t dePin, int8_t rePin, unsigne
   _readTimeout = timeout;
 }
 
-void ModbusRTUComm::begin(unsigned long baud, ConfigType config, unsigned long preDelay, unsigned long postDelay) {
+void ModbusRTUComm::begin(unsigned long baud, uint32_t config, unsigned long preDelay, unsigned long postDelay) {
   _preDelay = preDelay;
   _postDelay = postDelay;
   unsigned long bitsPerChar;

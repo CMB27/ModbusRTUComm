@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include "ModbusADU.h"
 
-enum ModbusRTUCommError uint8_t {
+enum ModbusRTUCommError : uint8_t {
   MODBUS_RTU_COMM_SUCCESS = 0,
   MODBUS_RTU_COMM_TIMEOUT = 1,
   MODBUS_RTU_COMM_FRAME_ERROR = 2,
@@ -14,8 +14,7 @@ enum ModbusRTUCommError uint8_t {
 class ModbusRTUComm {
   public:
     ModbusRTUComm(Stream& serial, int8_t dePin = -1, int8_t rePin = -1, unsigned long timeout = 0);
-    template <typename ConfigType>
-    void begin(unsigned long baud, ConfigType config = SERIAL_8N1, unsigned long preDelay = 0, unsigned long postDelay = 0);
+    void begin(unsigned long baud, uint32_t config = SERIAL_8N1, unsigned long preDelay = 0, unsigned long postDelay = 0);
     void setTimeout(unsigned long readTimeout);
     ModbusRTUCommError readAdu(ModbusADU& adu);
     void writeAdu(ModbusADU& adu);

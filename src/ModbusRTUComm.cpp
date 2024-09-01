@@ -54,15 +54,16 @@ ModbusRTUCommError ModbusRTUComm::readAdu(ModbusADU& adu) {
   while (!_serial.available()) {
     if (millis() - startMillis >= _readTimeout) return MODBUS_RTU_COMM_TIMEOUT;
   }
+  uint16_t len = 0;
   unsigned long startMicros = micros();
   do {
     if (_serial.available()) {
       startMicros = micros();
-      adu.rtu[adu.getRtuLen()] = _serial.read();
-      adu.setRtuLen(adu.getRtuLen() + 1);
+      adu.rtu[len] = _serial.read();
+      len++;
     }
-  } while (micros() - startMicros <= _charTimeout && adu.getRtuLen() < 256);
-  
+  } while (micros() - startMicros <= _charTimeout && len < 256);
+  adu.setRtuLen(len);
   while (micros() - startMicros < _frameTimeout);
   if (_serial.available()) {
     adu.setRtuLen(0);

@@ -1,14 +1,11 @@
 #include "ModbusRTUComm.h"
 
-ModbusRTUComm::ModbusRTUComm(Stream& serial, int8_t dePin, int8_t rePin, unsigned long timeout) : _serial(serial) {
+ModbusRTUComm::ModbusRTUComm(Stream& serial, int8_t dePin, int8_t rePin) : _serial(serial) {
   _dePin = dePin;
   _rePin = rePin;
-  _readTimeout = timeout;
 }
 
-void ModbusRTUComm::begin(unsigned long baud, uint32_t config, unsigned long preDelay, unsigned long postDelay) {
-  _preDelay = preDelay;
-  _postDelay = postDelay;
+void ModbusRTUComm::begin(unsigned long baud, uint32_t config) {
   unsigned long bitsPerChar;
   switch (config) {
     case SERIAL_8E2:
@@ -33,6 +30,9 @@ void ModbusRTUComm::begin(unsigned long baud, uint32_t config, unsigned long pre
     _charTimeout = (bitsPerChar * 1000000) / baud + 750;
     _frameTimeout = (bitsPerChar * 1000000) / baud + 1750;
   }
+  #if defined(ARDUINO_UNOR4_MINIMA) || defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_GIGA) || (defined(ARDUINO_NANO_RP2040_CONNECT) && defined(ARDUINO_ARCH_MBED))
+  _postDelay = ((bitsPerChar * 1000000) / baud) + 2;
+  #endif
   if (_dePin >= 0) {
     pinMode(_dePin, OUTPUT);
     digitalWrite(_dePin, LOW);
@@ -44,8 +44,8 @@ void ModbusRTUComm::begin(unsigned long baud, uint32_t config, unsigned long pre
   clearRxBuffer();
 }
 
-void ModbusRTUComm::setTimeout(unsigned long readTimeout) {
-  _readTimeout = readTimeout;
+void ModbusRTUComm::setTimeout(unsigned long timeout) {
+  _readTimeout = timeout;
 }
 
 ModbusRTUCommError ModbusRTUComm::readAdu(ModbusADU& adu) {
@@ -80,7 +80,6 @@ void ModbusRTUComm::writeAdu(ModbusADU& adu) {
   adu.updateCrc();
   if (_dePin >= 0) digitalWrite(_dePin, HIGH);
   if (_rePin >= 0) digitalWrite(_rePin, HIGH);
-  delayMicroseconds(_preDelay);
   _serial.write(adu.rtu, adu.getRtuLen());
   _serial.flush();
   delayMicroseconds(_postDelay);

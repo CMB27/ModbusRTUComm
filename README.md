@@ -2,6 +2,8 @@
 This library provides some core functions for implementing Modbus RTU communication.
 It is not a full implementation of Modbus RTU. Other libraries are available for that purpose: see [ModbusRTUSlave](https://github.com/CMB27/ModbusRTUSlave) and [ModbusRTUMaster](https://github.com/CMB27/ModbusRTUMaster).
 
+
+
 ## Compatibility
 This library has been tested with the following boards and cores:
 
@@ -35,12 +37,14 @@ As of this writing (2024-09-07), `flush()` is not properly implemented with `Ser
 This library depends on `flush()` to know when to set the DE pin LOW after a message is sent.
 
 
+
 ## Methods
 
-<details>
-  <summary id="modbusrtucomm-1"><strong>ModbusRTUComm()</strong></summary>
+
+
+<details><summary id="modbusrtucomm-1"><strong>ModbusRTUComm()</strong></summary>
   <blockquote>
-  
+
 ### Description
 Creates a `ModbusRTUComm` object and sets the serial port to use for data transmission.
 Optionally sets a driver enable pin. This pin will go `HIGH` when the library is transmitting. This is primarily intended for use with an RS-485 transceiver, but it can also be a handy diagnostic when connected to an LED.
@@ -69,12 +73,9 @@ ModbusRTUComm rtuComm(Serial1, dePin, rePin);
   </blockquote>
 </details>
 
----
 
 
-
-<details>
-  <summary id="begin"><strong>begin()</strong></summary>
+<details><summary id="begin"><strong>begin()</strong></summary>
   <blockquote>
   
   ### Description
@@ -111,12 +112,9 @@ ModbusRTUComm rtuComm(Serial1, dePin, rePin);
   </blockquote>
 </details>
 
----
 
 
-
-<details>
-  <summary id="settimeout"><strong>setTimeout()</strong></summary>
+<details><summary id="settimeout"><strong>setTimeout()</strong></summary>
   <blockquote>
 
 ### Description
@@ -132,12 +130,9 @@ Sets the maximum time in milliseconds that `readAdu()` will wait for a data to b
   </blockquote>
 </details>
 
----
 
 
-
-<details>
-  <summary id="readadu"><strong>readAdu()</strong></summary>
+<details><summary id="readadu"><strong>readAdu()</strong></summary>
   <blockquote>
 
 ### Description
@@ -166,12 +161,9 @@ uint8_t error = rtuComm.readAdu(adu);
   </blockquote>
 </details>
 
----
 
 
-
-<details>
-  <summary id="writeadu"><strong>writeAdu()</strong></summary>
+<details><summary id="writeadu"><strong>writeAdu()</strong></summary>
   <blockquote>
 
 ### Description
@@ -206,8 +198,7 @@ bool success = rtuComm.writeAdu(adu);
   </blockquote>
 </details>
 
+
 ---
-
-
 
 *Soli Deo Gloria*

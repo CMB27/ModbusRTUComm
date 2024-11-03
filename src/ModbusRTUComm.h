@@ -18,7 +18,6 @@ class ModbusRTUComm {
     void setTimeout(unsigned long timeout);
     ModbusRTUCommError readAdu(ModbusADU& adu);
     bool writeAdu(ModbusADU& adu);
-    void clearRxBuffer();
 
   private:
     Stream& _serial;

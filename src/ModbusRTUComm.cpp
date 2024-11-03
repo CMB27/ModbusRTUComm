@@ -41,7 +41,13 @@ void ModbusRTUComm::begin(unsigned long baud, uint32_t config) {
     pinMode(_rePin, OUTPUT);
     digitalWrite(_rePin, LOW);
   }
-  clearRxBuffer();
+  unsigned long startMicros = micros();
+  do {
+    if (_serial.available() > 0) {
+      startMicros = micros();
+      _serial.read();
+    }
+  } while (micros() - startMicros < _frameTimeout);
 }
 
 void ModbusRTUComm::setTimeout(unsigned long timeout) {
@@ -88,14 +94,4 @@ bool ModbusRTUComm::writeAdu(ModbusADU& adu) {
     if (_serial.read() != adu.rtu[i]) return false;
   }
   return true;
-}
-
-void ModbusRTUComm::clearRxBuffer() {
-  unsigned long startMicros = micros();
-  do {
-    if (_serial.available() > 0) {
-      startMicros = micros();
-      _serial.read();
-    }
-  } while (micros() - startMicros < _frameTimeout);
 }

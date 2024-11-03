@@ -26,7 +26,7 @@ This library has been tested with the following boards and cores:
 
 [^1]: **Arduino Nano RP2040 Connect**  
 This board has trouble receiving Modbus messages when using the **Arduino Mbed OS Nano Boards** core by Arduino.  
-It seems that there is some sort of timing issue.  
+There seems to be some sort of timing issue.  
 It can technically be made to work if you tell the library that it is operating at a lower baud rate than the serial port assigned to the library is actually operating at.
 However, this would cause the library to operate with unknown timing tolerances, possibly well outside the Modbus specification.
 

@@ -17,7 +17,7 @@ class ModbusRTUComm {
     void begin(unsigned long baud, uint32_t config = SERIAL_8N1);
     void setTimeout(unsigned long timeout);
     ModbusRTUCommError readAdu(ModbusADU& adu);
-    void writeAdu(ModbusADU& adu);
+    bool writeAdu(ModbusADU& adu);
     void clearRxBuffer();
 
   private:

@@ -197,8 +197,3 @@ bool success = rtuComm.writeAdu(adu);
 
   </blockquote>
 </details>
-
-
----
-
-*Soli Deo Gloria*

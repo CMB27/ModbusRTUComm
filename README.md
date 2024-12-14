@@ -197,7 +197,3 @@ bool success = rtuComm.writeAdu(adu);
 
   </blockquote>
 </details>
-
-
----
-

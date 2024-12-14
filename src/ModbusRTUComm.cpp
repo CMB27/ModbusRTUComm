@@ -89,7 +89,7 @@ bool ModbusRTUComm::writeAdu(ModbusADU& adu) {
   _serial.flush();
   delayMicroseconds(_postDelay);
   if (_dePin >= 0) digitalWrite(_dePin, LOW);
-  for (uint16_t i; i < adu.getRtuLen(); i++) {
+  for (uint16_t i = 0; i < adu.getRtuLen(); i++) {
     if (!_serial.available()) return false;
     if (_serial.read() != adu.rtu[i]) return false;
   }

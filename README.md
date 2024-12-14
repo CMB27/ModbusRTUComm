@@ -201,4 +201,3 @@ bool success = rtuComm.writeAdu(adu);
 
 ---
 
-*Soli Deo Gloria*

@@ -30,9 +30,8 @@ void ModbusRTUComm::begin(unsigned long baud, uint32_t config) {
     _charTimeout = (bitsPerChar * 1000000) / baud + 750;
     _frameTimeout = (bitsPerChar * 1000000) / baud + 1750;
   }
-  #if defined(ARDUINO_UNOR4_MINIMA) || defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_GIGA) || (defined(ARDUINO_NANO_RP2040_CONNECT) && defined(ARDUINO_ARCH_MBED))
-  _postDelay = ((bitsPerChar * 1000000) / baud) + 2;
-  #endif
+  _bytePeriod = (bitsPerChar * 1000000) / baud;
+  _bitPeriod = 1000000 / baud;
   if (_dePin >= 0) {
     pinMode(_dePin, OUTPUT);
     digitalWrite(_dePin, LOW);
@@ -82,16 +81,161 @@ ModbusRTUCommError ModbusRTUComm::readAdu(ModbusADU& adu) {
   return MODBUS_RTU_COMM_SUCCESS;
 }
 
+/*
 bool ModbusRTUComm::writeAdu(ModbusADU& adu) {
+  uint16_t i = 0;
+  uint16_t j = 0;
+  bool verified = false;
   adu.updateCrc();
+  uint16_t len = adu.getRtuLen();
   if (_dePin >= 0) digitalWrite(_dePin, HIGH);
-  _serial.write(adu.rtu, adu.getRtuLen());
-  _serial.flush();
-  delayMicroseconds(_postDelay);
-  if (_dePin >= 0) digitalWrite(_dePin, LOW);
-  for (uint16_t i = 0; i < adu.getRtuLen(); i++) {
-    if (!_serial.available()) return false;
-    if (_serial.read() != adu.rtu[i]) return false;
+  unsigned long startMicros = micros();
+  while (true) {
+    unsigned long microsNow = micros();
+    if (i < len){
+      _serial.write(adu.rtu[i]);
+      delayMicroseconds(_bytePeriod);
+      i++;
+      if (i == len && _dePin >= 0) digitalWrite(_dePin, LOW);
+    }
+    if (_serial.available()) {
+      startMicros = microsNow;
+      uint8_t value = _serial.read();
+      if (j == 0) verified = true;
+      if (j < len && value != adu.rtu[j]) verified = false;
+      j++;
+    }
+    if (i == len && (microsNow - startMicros) > _charTimeout) {
+      if (j != len) verified = false;
+      break;
+    }
   }
-  return true;
+  return verified;
+}
+*/
+
+/*
+bool ModbusRTUComm::writeAdu(ModbusADU& adu) {
+  uint16_t i = 0;
+  uint16_t j = 0;
+  bool transmitting = true;
+  bool verified = false;
+  unsigned long microsNow;
+  unsigned long txStartMicros;
+  unsigned long rxStartMicros;
+  adu.updateCrc();
+  uint16_t len = adu.getRtuLen();
+  if (_dePin >= 0) digitalWrite(_dePin, HIGH);
+  while (true) {
+    microsNow = micros();
+    if (i == 0) {
+      txStartMicros = microsNow + _bytePeriod;
+      rxStartMicros = microsNow;
+    }
+    if (transmitting && microsNow - txStartMicros >= _bytePeriod) {
+      txStartMicros = microsNow;
+      if (i < len) {
+        _serial.write(adu.rtu[i]);
+        i++;
+      }
+      else {
+        if (_dePin >= 0) digitalWrite(_dePin, LOW);
+        transmitting = false;
+      }
+    }
+    if (_serial.available()) {
+      rxStartMicros = microsNow;
+      uint8_t value = _serial.read();
+      if (j == 0) verified = true;
+      if (j < len && value != adu.rtu[j]) verified = false;
+      j++;
+    }
+    if (i == len && (microsNow - rxStartMicros) > _charTimeout) {
+      if (j != len) verified = false;
+      break;
+    }
+  }
+  return verified;
+}
+*/
+
+/*
+bool ModbusRTUComm::writeAdu(ModbusADU& adu) {
+  uint16_t i = 0;
+  uint16_t j = 0;
+  bool verified = false;
+  unsigned long microsNow;
+  unsigned long txStartMicros;
+  unsigned long rxStartMicros;
+  adu.updateCrc();
+  uint16_t len = adu.getRtuLen();
+  if (_dePin >= 0) digitalWrite(_dePin, HIGH);
+  while (true) {
+    microsNow = micros();
+    if (i == 0) {
+      txStartMicros = microsNow + _bytePeriod;
+      rxStartMicros = microsNow;
+    }
+    if (i < len && microsNow - txStartMicros >= _bytePeriod) {
+      txStartMicros = microsNow;
+      _serial.write(adu.rtu[i]);
+      i++;
+      if (i == len && _dePin >= 0) {
+        delayMicroseconds(_bytePeriod);
+        digitalWrite(_dePin, LOW);
+      }
+    }
+    if (_serial.available()) {
+      rxStartMicros = microsNow;
+      uint8_t value = _serial.read();
+      if (j == 0) verified = true;
+      if (j < len && value != adu.rtu[j]) verified = false;
+      j++;
+    }
+    if (i == len && (microsNow - rxStartMicros) > _charTimeout) {
+      if (j != len) verified = false;
+      break;
+    }
+  }
+  return verified;
+}
+*/
+
+bool ModbusRTUComm::writeAdu(ModbusADU& adu) {
+  uint16_t i = 0;
+  uint16_t j = 0;
+  bool transmitting = true;
+  bool verified = false;
+  adu.updateCrc();
+  uint16_t len = adu.getRtuLen();
+  if (_dePin >= 0) digitalWrite(_dePin, HIGH);
+  unsigned long microsNow= micros();
+  unsigned long txStartMicros = microsNow;
+  unsigned long rxStartMicros = microsNow;
+  while (true) {
+    microsNow = micros();
+    if (transmitting) {
+      if (i == 0 || (i < len && microsNow - txStartMicros >= _bytePeriod)) {
+        txStartMicros = microsNow;
+        _serial.write(adu.rtu[i]);
+        i++;
+      }
+      if (i == len && microsNow - txStartMicros >= _bytePeriod + _bitPeriod) {
+        if (_dePin >= 0) digitalWrite(_dePin, LOW);
+        transmitting = false;
+      }
+    }
+    if (_serial.available()) {
+      rxStartMicros = microsNow;
+      uint8_t value = _serial.read();
+      if (j == 0) verified = true;
+      if (j < len && value != adu.rtu[j]) verified = false;
+      j++;
+    }
+    if (!transmitting && (microsNow - rxStartMicros) > _charTimeout) {
+      if (j != len) verified = false;
+      break;
+    }
+  }
+  return verified;
 }

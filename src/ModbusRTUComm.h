@@ -25,8 +25,10 @@ class ModbusRTUComm {
     int8_t _rePin;
     unsigned long _charTimeout;
     unsigned long _frameTimeout;
-    unsigned long _postDelay = 0;
+    unsigned long _bytePeriod;
+    unsigned long _bitPeriod;
     unsigned long _readTimeout = 0;
+
 };
 
 #endif

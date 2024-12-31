@@ -3,7 +3,7 @@ This library provides some core functions for implementing Modbus RTU communicat
 It is not a full implementation of Modbus RTU. Other libraries are available for that purpose: see [ModbusRTUSlave](https://github.com/CMB27/ModbusRTUSlave) and [ModbusRTUMaster](https://github.com/CMB27/ModbusRTUMaster).
 
 
-
+<!--
 ## Compatibility
 This library has been tested with the following boards and cores:
 
@@ -35,7 +35,7 @@ However, this would cause the library to operate with unknown timing tolerances,
 [^2]: **Arduino Nano Matter**  
 As of this writing (2024-09-07), `flush()` is not properly implemented with `Serial1` on this board.  
 This library depends on `flush()` to know when to set the DE pin LOW after a message is sent.
-
+-->
 
 
 ## Methods
@@ -177,7 +177,8 @@ Writes serial data from a `ModbusADU` object.
 - `adu`: a `ModbusADU` object.
 
 ### Returns
-`1` or `true` when the transmitted message is verified as having been sent, `0` or `false` otherwise. Data type: `bool`.
+- `true` when the transmitted message has been verified as having been sent.
+- `false` if the transmission could not be verified.
 
 *This will only return `true` if some sort of loopback mechanism is in place where all the transmitted data is also received.
 This can easily be done with an RS-485 transceiver by connecting the RE pin to GND.*

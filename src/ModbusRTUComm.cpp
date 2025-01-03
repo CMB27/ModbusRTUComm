@@ -98,6 +98,7 @@ bool ModbusRTUComm::writeAdu(ModbusADU& adu) {
       if (i == 0 || (i < len && microsNow - txStartMicros >= _bytePeriod)) {
         txStartMicros = microsNow;
         _serial.write(adu.rtu[i]);
+        _serial.flush();
         i++;
       }
       if (i == len && microsNow - txStartMicros >= _bytePeriod + _bitPeriod) {
